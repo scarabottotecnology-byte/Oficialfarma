@@ -1,0 +1,1029 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FP&A Executive Dashboard — Grupo Oficial Farma 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root {
+  --green-950: #041209;
+  --green-900: #072015;
+  --green-800: #0B3320;
+  --green-700: #0F4A2D;
+  --green-600: #146239;
+  --green-500: #1A7D49;
+  --green-400: #229558;
+  --green-300: #3DB872;
+  --green-200: #7DD8A3;
+  --green-100: #C2EDD4;
+  --green-50:  #EBF8F1;
+  --gold-700:  #8A6B1E;
+  --gold-600:  #A8831F;
+  --gold-500:  #C9A031;
+  --gold-400:  #E0B84A;
+  --gold-300:  #F0CD74;
+  --gold-200:  #F7E2A8;
+  --cream:     #F5F0E8;
+  --white:     #FFFFFF;
+  --surface-1: #0A1F13;
+  --surface-2: #0F2D1A;
+  --surface-3: #173B24;
+  --surface-4: #1E4A2E;
+  --border:    rgba(61,184,114,.12);
+  --border-gold: rgba(224,184,74,.18);
+  --text-1:    #E8F5EE;
+  --text-2:    #A3C4B0;
+  --text-3:    #6B9279;
+  --font-display: 'Cormorant Garamond', Georgia, serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--green-950);
+  color: var(--text-1);
+  min-height: 100vh;
+  overflow-x: hidden;
+  line-height: 1.6;
+}
+
+/* ─── AMBIENT BACKGROUND ─── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 50% at 10% 15%, rgba(26,125,73,.18) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 35% at 85% 80%, rgba(201,160,49,.07) 0%, transparent 50%),
+    radial-gradient(ellipse 50% 40% at 50% 50%, rgba(11,50,32,.6) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrap { position: relative; z-index: 1; max-width: 1140px; margin: 0 auto; padding: 0 28px 60px; }
+
+/* ─── HEADER ─── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 32px 0 28px;
+  border-bottom: 0.5px solid var(--border);
+  margin-bottom: 36px;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.logo-group { display: flex; align-items: center; gap: 18px; }
+
+.logo-mark {
+  width: 52px; height: 52px;
+  background: linear-gradient(145deg, var(--green-500), var(--green-700));
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  position: relative;
+  box-shadow: 0 0 0 1px rgba(61,184,114,.25), 0 8px 24px rgba(0,0,0,.4);
+  flex-shrink: 0;
+}
+
+.logo-mark svg { width: 28px; height: 28px; }
+
+.logo-text { display: flex; flex-direction: column; }
+.logo-name {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: .01em;
+  color: var(--text-1);
+  line-height: 1.1;
+}
+.logo-sub {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--gold-400);
+  margin-top: 2px;
+}
+
+.header-right { text-align: right; }
+.header-doc-title {
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-2);
+}
+.header-meta {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-top: 3px;
+  font-family: var(--font-mono);
+}
+
+/* ─── SECTION LABEL ─── */
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 16px;
+}
+.section-label::before {
+  content: '';
+  width: 18px; height: 1px;
+  background: var(--green-400);
+  display: block;
+}
+
+/* ─── KPI ROW ─── */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.kpi-card {
+  background: var(--surface-2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px 20px 18px;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s, transform .2s;
+  cursor: default;
+}
+.kpi-card:hover {
+  border-color: rgba(61,184,114,.28);
+  transform: translateY(-2px);
+}
+.kpi-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 2px;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.kpi-card.k-green::after  { background: linear-gradient(90deg, var(--green-400), var(--green-300)); }
+.kpi-card.k-gold::after   { background: linear-gradient(90deg, var(--gold-500), var(--gold-300)); }
+.kpi-card.k-warn::after   { background: linear-gradient(90deg, #E07820, #F0A040); }
+.kpi-card.k-danger::after { background: linear-gradient(90deg, #C84040, #E06060); }
+
+.kpi-label {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: .10em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  margin-bottom: 10px;
+}
+.kpi-value {
+  font-family: var(--font-display);
+  font-size: 30px;
+  font-weight: 700;
+  line-height: 1;
+  color: var(--text-1);
+  margin-bottom: 6px;
+}
+.kpi-delta {
+  font-size: 11px;
+  font-family: var(--font-mono);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.kpi-delta.up   { color: var(--green-300); }
+.kpi-delta.down { color: #E07070; }
+.kpi-delta.warn { color: var(--gold-300); }
+.kpi-delta.neut { color: var(--text-3); }
+
+/* ─── MAIN GRID ─── */
+.main-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.full-row { grid-column: 1 / -1; }
+
+/* ─── CHART CARDS ─── */
+.card {
+  background: var(--surface-2);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 22px 24px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.card-title {
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-1);
+  margin-bottom: 4px;
+}
+.card-subtitle {
+  font-size: 11px;
+  color: var(--text-3);
+  margin-bottom: 18px;
+  letter-spacing: .02em;
+}
+
+/* ─── LEGEND ─── */
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 14px;
+  align-items: center;
+}
+.leg {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--text-2);
+}
+.leg-sq {
+  width: 8px; height: 8px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
+
+/* ─── TABS ─── */
+.tabs {
+  display: flex;
+  gap: 2px;
+  background: var(--surface-1);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 3px;
+  margin-bottom: 22px;
+  width: fit-content;
+}
+.tab-btn {
+  padding: 7px 18px;
+  border-radius: 7px;
+  border: none;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-3);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.tab-btn.active {
+  background: var(--surface-4);
+  color: var(--green-200);
+  box-shadow: 0 1px 4px rgba(0,0,0,.3);
+}
+.tab-pane { display: none; }
+.tab-pane.active { display: block; }
+
+/* ─── BU TABLE ─── */
+.bu-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+.bu-table thead th {
+  text-align: left;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--text-3);
+  padding: 8px 10px;
+  border-bottom: 0.5px solid var(--border);
+}
+.bu-table thead th:not(:first-child) { text-align: right; }
+.bu-table tbody td {
+  padding: 10px 10px;
+  border-bottom: 0.5px solid var(--border);
+  color: var(--text-1);
+  vertical-align: middle;
+}
+.bu-table tbody tr:last-child td { border-bottom: none; }
+.bu-table tbody tr:hover td { background: rgba(61,184,114,.04); }
+.bu-table td:not(:first-child) { text-align: right; font-family: var(--font-mono); font-size: 12px; }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .04em;
+}
+.badge-green  { background: rgba(61,184,114,.15); color: var(--green-200); }
+.badge-gold   { background: rgba(224,184,74,.15);  color: var(--gold-300); }
+.badge-red    { background: rgba(200,64,64,.15);   color: #E09090; }
+.badge-blue   { background: rgba(74,124,224,.15);  color: #90B8E0; }
+
+/* ─── PROGRESS BAR ─── */
+.bar-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--surface-4);
+  overflow: hidden;
+  margin-top: 4px;
+}
+.bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width .6s ease;
+}
+
+/* ─── ALERT BOX ─── */
+.alert { display: flex; gap: 12px; padding: 14px 16px; border-radius: var(--radius-md); margin-bottom: 10px; align-items: flex-start; }
+.alert-icon { font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+.alert-text { font-size: 12px; line-height: 1.5; }
+.alert-title { font-weight: 600; font-size: 12px; margin-bottom: 2px; }
+.alert-danger { background: rgba(200,64,64,.1); border: 0.5px solid rgba(200,64,64,.25); color: #E09090; }
+.alert-warn   { background: rgba(224,120,32,.1); border: 0.5px solid rgba(224,120,32,.25); color: #EEB87A; }
+.alert-ok     { background: rgba(61,184,114,.1); border: 0.5px solid rgba(61,184,114,.25); color: var(--green-200); }
+
+/* ─── VARIANCE BAR ─── */
+.var-row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.var-label { font-size: 11px; color: var(--text-2); min-width: 80px; flex-shrink: 0; }
+.var-bar-wrap { flex: 1; height: 6px; border-radius: 3px; background: var(--surface-4); overflow: visible; position: relative; }
+.var-bar-fill { position: absolute; top: 0; height: 100%; border-radius: 3px; }
+.var-val { font-family: var(--font-mono); font-size: 11px; min-width: 46px; text-align: right; flex-shrink: 0; }
+
+/* ─── SCENARIO TABLE ─── */
+.scenario-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px; }
+.scenario-card { background: var(--surface-3); border: 0.5px solid var(--border); border-radius: var(--radius-md); padding: 16px; }
+.scenario-name { font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--text-3); margin-bottom: 8px; }
+.scenario-val { font-family: var(--font-display); font-size: 24px; font-weight: 700; color: var(--text-1); margin-bottom: 4px; }
+.scenario-sub { font-size: 11px; color: var(--text-3); }
+
+/* ─── FOOTER ─── */
+.footer {
+  margin-top: 40px;
+  padding-top: 20px;
+  border-top: 0.5px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.footer-text { font-size: 10px; color: var(--text-3); font-family: var(--font-mono); }
+.footer-confidential {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: rgba(201,160,49,.4);
+}
+
+/* ─── DIVIDER ─── */
+.divider { height: 0.5px; background: var(--border); margin: 20px 0; }
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.kpi-card { animation: fadeUp .4s ease both; }
+.kpi-card:nth-child(1) { animation-delay: .05s; }
+.kpi-card:nth-child(2) { animation-delay: .10s; }
+.kpi-card:nth-child(3) { animation-delay: .15s; }
+.kpi-card:nth-child(4) { animation-delay: .20s; }
+.kpi-card:nth-child(5) { animation-delay: .25s; }
+.kpi-card:nth-child(6) { animation-delay: .30s; }
+.kpi-card:nth-child(7) { animation-delay: .35s; }
+.kpi-card:nth-child(8) { animation-delay: .40s; }
+
+.card { animation: fadeUp .5s ease both; animation-delay: .25s; }
+
+/* ─── NUMBER COUNTER ─── */
+.count { display: inline-block; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 700px) {
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .main-grid { grid-template-columns: 1fr; }
+  .scenario-grid { grid-template-columns: 1fr; }
+  .header { flex-direction: column; align-items: flex-start; }
+  .header-right { text-align: left; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ─── HEADER ─── -->
+<header class="header">
+  <div class="logo-group">
+    <div class="logo-mark">
+      <svg viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Cross / pharmacy symbol stylized -->
+        <rect x="11" y="3" width="6" height="22" rx="2" fill="rgba(255,255,255,.9)"/>
+        <rect x="3" y="11" width="22" height="6" rx="2" fill="rgba(255,255,255,.9)"/>
+        <circle cx="14" cy="14" r="3" fill="rgba(26,125,73,.8)"/>
+        <!-- leaf detail -->
+        <path d="M14 14 Q18 8 22 6 Q20 11 14 14Z" fill="rgba(255,255,255,.35)"/>
+      </svg>
+    </div>
+    <div class="logo-text">
+      <span class="logo-name">Oficial Farma</span>
+      <span class="logo-sub">Grupo Oficial · Multi-BU</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="header-doc-title">FP&amp;A Executive Dashboard</div>
+    <div class="header-meta">Budget 2026 · Posição Jan–Fev · Elaborado por Controladoria</div>
+  </div>
+</header>
+
+<!-- ─── KPI STRIP 1 ─── -->
+<div class="section-label">Indicadores-Chave 2026</div>
+<div class="kpi-grid">
+  <div class="kpi-card k-gold">
+    <div class="kpi-label">Receita Bruta Budget</div>
+    <div class="kpi-value">R$ 317M</div>
+    <div class="kpi-delta warn">↑ +71% vs 2025 estimado</div>
+  </div>
+  <div class="kpi-card k-green">
+    <div class="kpi-label">EBITDA Budget</div>
+    <div class="kpi-value">R$ 87,3M</div>
+    <div class="kpi-delta up">▲ Margem 30,1%</div>
+  </div>
+  <div class="kpi-card k-warn">
+    <div class="kpi-label">EBITDA Realizado YTD</div>
+    <div class="kpi-value">R$ 7,9M</div>
+    <div class="kpi-delta warn">◈ Margem 26,8% · –3,3pp</div>
+  </div>
+  <div class="kpi-card k-gold">
+    <div class="kpi-label">Valuation EV (13×)</div>
+    <div class="kpi-value">R$ 1,13B</div>
+    <div class="kpi-delta neut">⚑ Condicional ao budget</div>
+  </div>
+</div>
+<div class="kpi-grid">
+  <div class="kpi-card k-danger">
+    <div class="kpi-label">Receita Real Jan+Fev</div>
+    <div class="kpi-value">R$ 30,5M</div>
+    <div class="kpi-delta down">▼ Budget R$34,7M · gap –12%</div>
+  </div>
+  <div class="kpi-card k-green">
+    <div class="kpi-label">Margem Bruta Real</div>
+    <div class="kpi-value">74%</div>
+    <div class="kpi-delta up">▲ +5pp vs budget (69,3%)</div>
+  </div>
+  <div class="kpi-card k-warn">
+    <div class="kpi-label">CAPEX Budget 2026</div>
+    <div class="kpi-value">R$ 68M</div>
+    <div class="kpi-delta warn">◈ 21,4% da receita</div>
+  </div>
+  <div class="kpi-card k-danger">
+    <div class="kpi-label">Não-Operacionais 2025</div>
+    <div class="kpi-value">–R$ 31M</div>
+    <div class="kpi-delta down">▼ Principal destruição de valor</div>
+  </div>
+</div>
+
+<!-- ─── TABS ─── -->
+<div class="tabs" id="tabs">
+  <button class="tab-btn active" onclick="switchTab('performance')">Performance</button>
+  <button class="tab-btn" onclick="switchTab('bu')">BUs & Segmentos</button>
+  <button class="tab-btn" onclick="switchTab('variacao')">Variação Orçado</button>
+  <button class="tab-btn" onclick="switchTab('cenarios')">Cenários</button>
+  <button class="tab-btn" onclick="switchTab('alertas')">Alertas</button>
+</div>
+
+<!-- ══ TAB: PERFORMANCE ══ -->
+<div id="pane-performance" class="tab-pane active">
+  <div class="main-grid">
+    <div class="card">
+      <div class="card-title">Receita Bruta — Budget × Realizado</div>
+      <div class="card-subtitle">Valores mensais em R$ milhões · 2026</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-sq" style="background:#229558"></span>Realizado</span>
+        <span class="leg"><span class="leg-sq" style="background:rgba(61,184,114,.3)"></span>Budget</span>
+      </div>
+      <div style="position:relative;height:220px;"><canvas id="c-rev"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">EBITDA R$ + Margem%</div>
+      <div class="card-subtitle">Budget × Realizado · 2026</div>
+      <div class="legend">
+        <span class="leg"><span class="leg-sq" style="background:#229558"></span>Real EBITDA R$M</span>
+        <span class="leg"><span class="leg-sq" style="background:rgba(61,184,114,.3)"></span>Budget R$M</span>
+        <span class="leg"><span class="leg-sq" style="background:#E0B84A"></span>EBITDA%</span>
+      </div>
+      <div style="position:relative;height:220px;"><canvas id="c-ebitda"></canvas></div>
+    </div>
+  </div>
+  <div class="card full-row">
+    <div class="card-title">Tendência de Margem Bruta — FARMA Mensal 2026</div>
+    <div class="card-subtitle">Evolução da margem bruta realizada vs budget</div>
+    <div style="position:relative;height:150px;"><canvas id="c-margin"></canvas></div>
+  </div>
+</div>
+
+<!-- ══ TAB: BUs ══ -->
+<div id="pane-bu" class="tab-pane">
+  <div class="main-grid" style="margin-bottom:16px;">
+    <div class="card">
+      <div class="card-title">Receita por BU — Budget 2026</div>
+      <div class="card-subtitle">R$ milhões · participação no portfólio</div>
+      <div style="position:relative;height:250px;"><canvas id="c-bu-rev"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">EBITDA% por BU — Budget 2026</div>
+      <div class="card-subtitle">Rentabilidade relativa do portfólio</div>
+      <div style="position:relative;height:250px;"><canvas id="c-bu-pct"></canvas></div>
+    </div>
+  </div>
+  <div class="card full-row">
+    <div class="card-title">Tabela de Performance — Todas as BUs</div>
+    <div class="card-subtitle">Budget 2026 · valores consolidados</div>
+    <div style="overflow-x:auto;margin-top:4px;">
+    <table class="bu-table">
+      <thead><tr>
+        <th>Unidade de Negócio</th>
+        <th>Rec. Bruta</th>
+        <th>AV%</th>
+        <th>EBITDA R$</th>
+        <th>EBITDA%</th>
+        <th>CAPEX</th>
+        <th>Status</th>
+      </tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>FARMA — Majestic</strong><br><span style="font-size:10px;color:var(--text-3)">Core operacional · e-commerce 93%</span></td>
+          <td>R$ 220M</td><td>69,3%</td><td>R$ 58,8M</td>
+          <td><span style="color:var(--green-300);font-weight:600">28,5%</span></td>
+          <td>R$ 11,2M</td>
+          <td><span class="badge badge-green">Core</span></td>
+        </tr>
+        <tr>
+          <td><strong>GYM — Franquia</strong><br><span style="font-size:10px;color:var(--text-3)">Lançamento pendente · R$0 real</span></td>
+          <td>R$ 42,7M</td><td>13,4%</td><td>R$ 15,7M</td>
+          <td><span style="color:#90B8E0;font-weight:600">40,8%</span></td>
+          <td>R$ 48,8M</td>
+          <td><span class="badge badge-red">Zero Real</span></td>
+        </tr>
+        <tr>
+          <td><strong>FOOD — Oficial Foods</strong><br><span style="font-size:10px;color:var(--text-3)">Ramp-up acelerado · vending + e-com</span></td>
+          <td>R$ 25,8M</td><td>8,1%</td><td>R$ 6,7M</td>
+          <td><span style="color:var(--green-300);font-weight:600">34,5%</span></td>
+          <td>R$ 0,3M</td>
+          <td><span class="badge badge-blue">Ramp-up</span></td>
+        </tr>
+        <tr>
+          <td><strong>NUTRI — Advanced</strong><br><span style="font-size:10px;color:var(--text-3)">Maior EBITDA% · subinvestida</span></td>
+          <td>R$ 8,0M</td><td>2,5%</td><td>R$ 4,2M</td>
+          <td><span style="color:var(--gold-300);font-weight:600">56,6%</span>⭐</td>
+          <td>R$ 0M</td>
+          <td><span class="badge badge-gold">Quick Win</span></td>
+        </tr>
+        <tr>
+          <td><strong>PATRIMONIAL</strong><br><span style="font-size:10px;color:var(--text-3)">SG&A desproporcional</span></td>
+          <td>R$ 7,5M</td><td>2,4%</td><td>R$ 0,7M</td>
+          <td><span style="color:var(--gold-400);font-weight:600">9,9%</span></td>
+          <td>R$ 0M</td>
+          <td><span class="badge badge-gold">Baixa Efic.</span></td>
+        </tr>
+        <tr>
+          <td><strong>CT Oficial</strong><br><span style="font-size:10px;color:var(--text-3)">Cursos online · fase nascente</span></td>
+          <td>R$ 7,4M</td><td>2,3%</td><td>R$ 0,9M</td>
+          <td><span style="color:var(--gold-400);font-weight:600">13,4%</span></td>
+          <td>R$ 0M</td>
+          <td><span class="badge badge-blue">Nascente</span></td>
+        </tr>
+        <tr>
+          <td><strong>DERMA — JJ &amp; Layneskin</strong><br><span style="font-size:10px;color:var(--text-3)">Dermatológicos · lojas + televendas</span></td>
+          <td>R$ 5,0M</td><td>1,6%</td><td>R$ 0,6M</td>
+          <td><span style="color:#EEB87A;font-weight:600">13,6%</span></td>
+          <td>R$ 1,1M</td>
+          <td><span class="badge badge-gold">Sub-ótimo</span></td>
+        </tr>
+        <tr>
+          <td><strong>HARAS</strong><br><span style="font-size:10px;color:var(--text-3)">Ativo não-operacional · sem retorno</span></td>
+          <td>R$ 3,7M</td><td>1,2%</td><td style="color:#E07070">–R$ 0,5M</td>
+          <td><span style="color:#E07070;font-weight:600">neg.</span></td>
+          <td>R$ 0,9M</td>
+          <td><span class="badge badge-red">Destruição</span></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB: VARIAÇÃO ══ -->
+<div id="pane-variacao" class="tab-pane">
+  <div class="main-grid">
+    <div class="card">
+      <div class="card-title">Desvio de Receita vs Budget</div>
+      <div class="card-subtitle">% por mês · negativo = abaixo do budget</div>
+      <div style="position:relative;height:200px;"><canvas id="c-dev"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="card-title">Decomposição da Variação</div>
+      <div class="card-subtitle">Jan–Fev 2026 · drivers do desvio</div>
+      <div style="margin-top:8px;">
+        <div class="var-row">
+          <span class="var-label">Receita</span>
+          <div class="var-bar-wrap">
+            <div class="var-bar-fill" style="width:41%;right:50%;background:#E24B4A;border-radius:3px 0 0 3px;left:auto;right:50%;"></div>
+            <div style="position:absolute;top:50%;left:50%;width:0.5px;height:14px;background:var(--text-3);transform:translateY(-50%);"></div>
+          </div>
+          <span class="var-val" style="color:#E09090">–12%</span>
+        </div>
+        <div class="var-row">
+          <span class="var-label">Margem Bruta</span>
+          <div class="var-bar-wrap">
+            <div class="var-bar-fill" style="width:25%;left:50%;background:var(--green-400);border-radius:0 3px 3px 0;"></div>
+            <div style="position:absolute;top:50%;left:50%;width:0.5px;height:14px;background:var(--text-3);transform:translateY(-50%);"></div>
+          </div>
+          <span class="var-val" style="color:var(--green-300)">+5pp</span>
+        </div>
+        <div class="var-row">
+          <span class="var-label">CMV</span>
+          <div class="var-bar-wrap">
+            <div class="var-bar-fill" style="width:18%;left:50%;background:var(--green-400);border-radius:0 3px 3px 0;"></div>
+            <div style="position:absolute;top:50%;left:50%;width:0.5px;height:14px;background:var(--text-3);transform:translateY(-50%);"></div>
+          </div>
+          <span class="var-val" style="color:var(--green-300)">+4%</span>
+        </div>
+        <div class="var-row">
+          <span class="var-label">SG&amp;A</span>
+          <div class="var-bar-wrap">
+            <div class="var-bar-fill" style="width:12%;left:50%;background:var(--green-400);border-radius:0 3px 3px 0;"></div>
+            <div style="position:absolute;top:50%;left:50%;width:0.5px;height:14px;background:var(--text-3);transform:translateY(-50%);"></div>
+          </div>
+          <span class="var-val" style="color:var(--green-300)">+2%</span>
+        </div>
+        <div class="var-row">
+          <span class="var-label">FOPAG</span>
+          <div class="var-bar-wrap">
+            <div class="var-bar-fill" style="width:8%;right:50%;background:#EEB87A;border-radius:3px 0 0 3px;left:auto;right:50%;"></div>
+            <div style="position:absolute;top:50%;left:50%;width:0.5px;height:14px;background:var(--text-3);transform:translateY(-50%);"></div>
+          </div>
+          <span class="var-val" style="color:#EEB87A">–2%</span>
+        </div>
+        <div class="var-row">
+          <span class="var-label">CAPEX</span>
+          <div class="var-bar-wrap">
+            <div class="var-bar-fill" style="width:30%;right:50%;background:#E24B4A;border-radius:3px 0 0 3px;left:auto;right:50%;"></div>
+            <div style="position:absolute;top:50%;left:50%;width:0.5px;height:14px;background:var(--text-3);transform:translateY(-50%);"></div>
+          </div>
+          <span class="var-val" style="color:#E09090">–15%</span>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:11px;color:var(--text-3);">Conclusão: desvio é de <strong style="color:var(--text-2)">volume</strong>, não de rentabilidade. A estrutura de custo está performando melhor que o orçado. O problema é a aceleração de receita prevista para mar–dez.</div>
+    </div>
+  </div>
+  <div class="card full-row" style="margin-top:16px;">
+    <div class="card-title">Evolução do Gap de Receita</div>
+    <div class="card-subtitle">Budget vs Realizado acumulado + projeção de tendência</div>
+    <div class="legend">
+      <span class="leg"><span class="leg-sq" style="background:rgba(61,184,114,.3)"></span>Budget acumulado</span>
+      <span class="leg"><span class="leg-sq" style="background:#229558"></span>Realizado acumulado</span>
+      <span class="leg"><span class="leg-sq" style="background:rgba(224,184,74,.5);border:1px dashed #E0B84A"></span>Tendência atual</span>
+    </div>
+    <div style="position:relative;height:180px;"><canvas id="c-acum"></canvas></div>
+  </div>
+</div>
+
+<!-- ══ TAB: CENÁRIOS ══ -->
+<div id="pane-cenarios" class="tab-pane">
+  <div class="card full-row" style="margin-bottom:16px;">
+    <div class="card-title">Sensibilidade: EBITDA × Atingimento de Receita</div>
+    <div class="card-subtitle">Cenários de atingimento do budget de receita 2026</div>
+    <div style="position:relative;height:220px;"><canvas id="c-sens"></canvas></div>
+  </div>
+  <div class="scenario-grid">
+    <div class="scenario-card" style="border-color:rgba(200,64,64,.3);">
+      <div class="scenario-name" style="color:#E09090;">Pessimista · 75%</div>
+      <div class="scenario-val" style="color:#E09090;">R$ 55M</div>
+      <div class="scenario-sub">EBITDA projetado</div>
+      <div class="divider" style="margin:10px 0;"></div>
+      <div style="font-size:11px;color:var(--text-3);">Receita R$238M · EV ~R$715M<br>Gap vs budget: –R$32M EBITDA</div>
+    </div>
+    <div class="scenario-card" style="border-color:rgba(224,184,74,.3);">
+      <div class="scenario-name" style="color:var(--gold-300);">Base · 90%</div>
+      <div class="scenario-val" style="color:var(--gold-300);">R$ 72M</div>
+      <div class="scenario-sub">EBITDA projetado</div>
+      <div class="divider" style="margin:10px 0;"></div>
+      <div style="font-size:11px;color:var(--text-3);">Receita R$285M · EV ~R$936M<br>Gap vs budget: –R$15M EBITDA</div>
+    </div>
+    <div class="scenario-card" style="border-color:rgba(61,184,114,.3);">
+      <div class="scenario-name" style="color:var(--green-300);">Otimista · 110%</div>
+      <div class="scenario-val" style="color:var(--green-300);">R$ 98M</div>
+      <div class="scenario-sub">EBITDA projetado</div>
+      <div class="divider" style="margin:10px 0;"></div>
+      <div style="font-size:11px;color:var(--text-3);">Receita R$349M · EV ~R$1,27B<br>Acima do budget: +R$11M</div>
+    </div>
+  </div>
+  <div style="margin-top:16px;" class="card full-row">
+    <div class="card-title">Impacto do Não-Operacional no Valuation</div>
+    <div class="card-subtitle">Segregando resultado operacional puro vs consolidado</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-top:8px;">
+      <div>
+        <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">EBITDA Operacional</div>
+        <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--text-1);">R$ 87,3M</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:3px;">Budget 2026 · BUs operacionais</div>
+      </div>
+      <div>
+        <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">Impacto Não-Operat.</div>
+        <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:#E07070;">–R$ 31M</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:3px;">Haras + Ship + Patrimonial 2025</div>
+      </div>
+      <div>
+        <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-3);margin-bottom:6px;">EBITDA Ajustado</div>
+        <div style="font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--gold-300);">R$ 56,3M</div>
+        <div style="font-size:11px;color:var(--text-3);margin-top:3px;">Resultado consolidado real</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ TAB: ALERTAS ══ -->
+<div id="pane-alertas" class="tab-pane">
+  <div class="main-grid">
+    <div>
+      <div class="section-label">Alertas Críticos</div>
+      <div class="alert alert-danger">
+        <span class="alert-icon">⬤</span>
+        <div>
+          <div class="alert-title">Concentração extrema de receita</div>
+          <div class="alert-text">69% em FARMA + 93% via e-commerce = single point of failure. Qualquer disrupção de canal ou marketplace paralisa a geração de caixa do grupo.</div>
+        </div>
+      </div>
+      <div class="alert alert-danger">
+        <span class="alert-icon">⬤</span>
+        <div>
+          <div class="alert-title">Valuation em risco</div>
+          <div class="alert-text">Ao ritmo atual (jan–fev), EBITDA projetaria R$55–65M vs budget R$87,3M. EV cai R$285–415M. Aceleração de receita em mar–jun é determinante.</div>
+        </div>
+      </div>
+      <div class="alert alert-danger">
+        <span class="alert-icon">⬤</span>
+        <div>
+          <div class="alert-title">GYM zerado — R$0 realizados</div>
+          <div class="alert-text">Budget R$42,7M (13,4% da receita total). Representa 18% do EBITDA budget. Gate review urgente do plano de lançamento necessário.</div>
+        </div>
+      </div>
+      <div class="alert alert-warn">
+        <span class="alert-icon">◈</span>
+        <div>
+          <div class="alert-title">Gap de receita ampliando</div>
+          <div class="alert-text">Jan –8,3% → Fev –15,6%. Tendência de deterioração. Diagnóstico urgente: tráfego, conversão ou ticket médio do e-commerce FARMA.</div>
+        </div>
+      </div>
+      <div class="alert alert-warn">
+        <span class="alert-icon">◈</span>
+        <div>
+          <div class="alert-title">CAPEX R$68M — 21,4% da receita</div>
+          <div class="alert-text">Ano de investimento pesado. Gate review por projeto necessário. Deferir R$15–20M em projetos especulativos alivia FCL sem impactar EBITDA.</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="section-label">Oportunidades e Quick Wins</div>
+      <div class="alert alert-ok">
+        <span class="alert-icon">▲</span>
+        <div>
+          <div class="alert-title">NUTRI — maior oportunidade do portfólio</div>
+          <div class="alert-text">EBITDA 56,6% com receita de apenas R$8M. Cada R$1M incremental gera R$566K de EBITDA. Vertical subinvestida com maior retorno marginal.</div>
+        </div>
+      </div>
+      <div class="alert alert-ok">
+        <span class="alert-icon">▲</span>
+        <div>
+          <div class="alert-title">Margem bruta acima do budget</div>
+          <div class="alert-text">~74% real vs 69,3% orçado. CMV controlado, mix de produto favorável. Proteção parcial contra queda de volume. Precifica melhor que o previsto.</div>
+        </div>
+      </div>
+      <div class="alert alert-ok">
+        <span class="alert-icon">▲</span>
+        <div>
+          <div class="alert-title">Estrutura de custos bem gerenciada</div>
+          <div class="alert-text">FOPAG e SG&A abaixo do orçado em termos proporcionais. O modelo de negócio gera rentabilidade acima do esperado quando o volume é entregue.</div>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div class="section-label">Ações Recomendadas</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:var(--surface-3);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
+          <span style="background:var(--green-700);color:var(--green-200);font-size:9px;font-weight:700;letter-spacing:.1em;padding:2px 7px;border-radius:3px;margin-top:1px;white-space:nowrap;">URGENTE</span>
+          <div style="font-size:12px;color:var(--text-1);">Diagnóstico de tráfego e conversão FARMA e-commerce</div>
+        </div>
+        <div style="background:var(--surface-3);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
+          <span style="background:var(--green-700);color:var(--green-200);font-size:9px;font-weight:700;letter-spacing:.1em;padding:2px 7px;border-radius:3px;margin-top:1px;white-space:nowrap;">URGENTE</span>
+          <div style="font-size:12px;color:var(--text-1);">Gate review do CAPEX R$68M por projeto</div>
+        </div>
+        <div style="background:var(--surface-3);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
+          <span style="background:rgba(201,160,49,.2);color:var(--gold-300);font-size:9px;font-weight:700;letter-spacing:.1em;padding:2px 7px;border-radius:3px;margin-top:1px;white-space:nowrap;">MÉDIO PRAZO</span>
+          <div style="font-size:12px;color:var(--text-1);">Plano de escala NUTRI — roadmap de distribuição específico</div>
+        </div>
+        <div style="background:var(--surface-3);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
+          <span style="background:rgba(201,160,49,.2);color:var(--gold-300);font-size:9px;font-weight:700;letter-spacing:.1em;padding:2px 7px;border-radius:3px;margin-top:1px;white-space:nowrap;">MÉDIO PRAZO</span>
+          <div style="font-size:12px;color:var(--text-1);">Decisão estratégica: segregar ou desinvestir não-operacionais</div>
+        </div>
+        <div style="background:var(--surface-3);border:0.5px solid var(--border);border-radius:var(--radius-md);padding:12px 14px;display:flex;gap:12px;align-items:flex-start;">
+          <span style="background:rgba(61,184,114,.15);color:var(--green-300);font-size:9px;font-weight:700;letter-spacing:.1em;padding:2px 7px;border-radius:3px;margin-top:1px;white-space:nowrap;">CURTO PRAZO</span>
+          <div style="font-size:12px;color:var(--text-1);">Implementar Rolling Forecast mensal com causa + ação corretiva</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── FOOTER ─── -->
+<div class="footer">
+  <span class="footer-text">Elaboração: Jefferson Scarabotto · Controller | Revisão: Ingrid Silveira — CFO · 19 Mar 2026</span>
+  <span class="footer-confidential">Confidencial — Uso Interno</span>
+</div>
+</div>
+
+<script>
+/* ─── TAB LOGIC ─── */
+function switchTab(name) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-'+name).classList.add('active');
+  event.target.classList.add('active');
+  if (!window._charts) window._charts = {};
+  if (!window._charts[name]) {
+    window._charts[name] = true;
+    if (name === 'variacao') initVariacao();
+    if (name === 'bu') initBU();
+    if (name === 'cenarios') initCenarios();
+  }
+}
+
+/* ─── CHART DEFAULTS ─── */
+const green1 = '#229558', green2 = 'rgba(61,184,114,.25)', gold = '#E0B84A',
+      red = '#E24B4A', redFill = 'rgba(226,75,74,.2)',
+      text2 = '#A3C4B0', text3 = '#6B9279', border = 'rgba(61,184,114,.1)';
+const months = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+const baseOpts = (yLabel='', y2=false) => ({
+  responsive: true, maintainAspectRatio: false,
+  interaction: { mode:'index', intersect:false },
+  plugins: { legend:{ display:false }, tooltip:{
+    backgroundColor:'rgba(7,32,21,.95)', borderColor:'rgba(61,184,114,.3)', borderWidth:.5,
+    titleColor:text2, bodyColor:'#E8F5EE', padding:10, cornerRadius:6
+  }},
+  scales: {
+    x:{ ticks:{ color:text3, font:{size:10,family:"'DM Sans',sans-serif"} }, grid:{ color:border }, border:{ color:'transparent' } },
+    y:{ ticks:{ color:text3, font:{size:10}, callback: v => yLabel ? yLabel+v : v }, grid:{ color:border }, border:{ color:'transparent' } },
+    ...(y2 ? { y2:{ position:'right', ticks:{ color:gold, font:{size:10}, callback:v=>v+'%' }, grid:{display:false}, border:{color:'transparent'}, min:0, max:45 } } : {})
+  }
+});
+
+/* ─── PERFORMANCE TAB ─── */
+const budgetRev  = [17.3,17.3,19.6,18.5,18.9,18.2,18.3,19.7,20.7,21.5,24.1,18.9];
+const realRev    = [15.9,14.6,null,null,null,null,null,null,null,null,null,null];
+const budgetEbt  = [3.5,4.3,5.5,4.4,5.1,4.7,4.9,5.8,6.5,7.0,8.4,5.0];
+const realEbt    = [4.2,3.7,null,null,null,null,null,null,null,null,null,null];
+const realPct    = [27.7,26.3,null,null,null,null,null,null,null,null,null,null];
+const budgPct    = [20.2,24.9,28.1,25.4,29.1,27.7,28.4,31.3,33.6,34.9,37.2,28.3];
+
+new Chart(document.getElementById('c-rev'), {
+  type:'bar',
+  data:{ labels:months, datasets:[
+    { label:'Budget', data:budgetRev, backgroundColor:green2, borderColor:'rgba(61,184,114,.5)', borderWidth:.5, borderRadius:3 },
+    { label:'Realizado', data:realRev, backgroundColor:green1+'CC', borderColor:green1, borderWidth:.5, borderRadius:3 }
+  ]},
+  options: {
+    ...baseOpts('R$'),
+    scales:{ ...baseOpts('R$').scales,
+      y:{ ...baseOpts('R$').scales.y, ticks:{ ...baseOpts('R$').scales.y.ticks, callback:v=>'R$'+v+'M' } }
+    }
+  }
+});
+
+new Chart(document.getElementById('c-ebitda'), {
+  type:'bar',
+  data:{ labels:months, datasets:[
+    { label:'Budget R$M',  data:budgetEbt, backgroundColor:green2, borderColor:'rgba(61,184,114,.4)', borderWidth:.5, borderRadius:3 },
+    { label:'Real R$M',    data:realEbt,   backgroundColor:green1+'CC', borderColor:green1, borderWidth:.5, borderRadius:3 },
+    { label:'EBITDA%',     data:realPct,   type:'line', borderColor:gold, backgroundColor:'transparent', borderWidth:2, pointRadius:5, tension:.3, yAxisID:'y2', pointBackgroundColor:gold }
+  ]},
+  options: {
+    ...baseOpts('R$', true),
+    scales:{ ...baseOpts('R$',true).scales,
+      y:{ ...baseOpts('R$',true).scales.y, ticks:{ ...baseOpts('R$',true).scales.y.ticks, callback:v=>'R$'+v+'M' } }
+    }
+  }
+});
+
+new Chart(document.getElementById('c-margin'), {
+  type:'line',
+  data:{ labels:months, datasets:[
+    { label:'Margem Bruta Budget', data:[69.3,69.3,69.3,69.3,69.3,69.3,69.3,69.3,69.3,69.3,69.3,69.3], borderColor:'rgba(61,184,114,.35)', backgroundColor:'transparent', borderWidth:1.5, borderDash:[4,4], pointRadius:0, tension:.3 },
+    { label:'Margem Bruta Real',   data:[74.8,75.1,null,null,null,null,null,null,null,null,null,null], borderColor:gold, backgroundColor:'rgba(224,184,74,.08)', fill:true, borderWidth:2, pointRadius:6, pointBackgroundColor:gold, tension:.3 }
+  ]},
+  options:{
+    ...baseOpts('%'),
+    scales:{ ...baseOpts('%').scales,
+      y:{ ...baseOpts('%').scales.y, min:60, max:85, ticks:{ ...baseOpts('%').scales.y.ticks, callback:v=>v+'%' } }
+    }
+  }
+});
+
+/* ─── BU TAB ─── */
+function initBU() {
+  const buLabels = ['FARMA','GYM*','FOOD','NUTRI','PATRIMONIAL','CT','DERMA','HARAS'];
+  const buRev    = [220,42.7,25.8,8.0,7.5,7.4,5.0,3.7];
+  const buPct    = [28.5,40.8,34.5,56.6,9.9,13.4,13.6,-13.7];
+  const revCols  = ['#229558CC','#3DB872CC','#1A7D49CC','#E0B84ACC','#8AA890CC','#5C9B75CC','#4A8563CC','#E24B4ACC'];
+  const pctCols  = buPct.map(v => v < 0 ? '#E24B4ACC' : v > 40 ? '#E0B84ACC' : v > 25 ? '#229558CC' : '#8AA890CC');
+
+  new Chart(document.getElementById('c-bu-rev'), {
+    type:'bar', data:{ labels:buLabels, datasets:[{ data:buRev, backgroundColor:revCols, borderWidth:0, borderRadius:4 }] },
+    options:{ indexAxis:'y', ...baseOpts('R$'), plugins:{ legend:{ display:false } },
+      scales:{ x:{ ticks:{ color:text3, font:{size:10}, callback:v=>'R$'+v+'M' }, grid:{ color:border }, border:{ color:'transparent' } },
+        y:{ ticks:{ color:text2, font:{size:11} }, grid:{ display:false }, border:{ color:'transparent' } } } }
+  });
+  new Chart(document.getElementById('c-bu-pct'), {
+    type:'bar', data:{ labels:buLabels, datasets:[{ data:buPct, backgroundColor:pctCols, borderWidth:0, borderRadius:4 }] },
+    options:{ indexAxis:'y', ...baseOpts('%'), plugins:{ legend:{ display:false } },
+      scales:{ x:{ ticks:{ color:text3, font:{size:10}, callback:v=>v+'%' }, grid:{ color:border }, border:{ color:'transparent' } },
+        y:{ ticks:{ color:text2, font:{size:11} }, grid:{ display:false }, border:{ color:'transparent' } } } }
+  });
+}
+
+/* ─── VARIAÇÃO TAB ─── */
+function initVariacao() {
+  const dev = budgetRev.map((b,i) => realRev[i] != null ? parseFloat((((realRev[i]-b)/b)*100).toFixed(1)) : null);
+  new Chart(document.getElementById('c-dev'), {
+    type:'bar',
+    data:{ labels:months, datasets:[{ label:'Desvio %', data:dev,
+      backgroundColor: dev.map(v => v == null ? 'transparent' : v < 0 ? '#E24B4A99' : '#22955899'),
+      borderColor: dev.map(v => v == null ? 'transparent' : v < 0 ? red : green1),
+      borderWidth:.5, borderRadius:3 }]},
+    options:{ ...baseOpts('%'),
+      scales:{ ...baseOpts('%').scales, y:{ ...baseOpts('%').scales.y, ticks:{ color:text3, font:{size:10}, callback:v=>v+'%' } } }
+    }
+  });
+
+  const budAcum = budgetRev.reduce((acc,v,i) => { acc.push((acc[i-1]||0)+v); return acc; }, []);
+  const realAcum = realRev.reduce((acc,v,i) => { const prev=acc[i-1]||0; acc.push(v!=null ? prev+v : null); return acc; }, []);
+  const trendAcum = [...realAcum.filter(v=>v!=null)];
+  const lastReal = trendAcum[trendAcum.length-1];
+  const growthRate = trendAcum.length > 1 ? (trendAcum[1]-trendAcum[0]) : lastReal * 0.9;
+  const trend = realAcum.map((v,i) => {
+    if (v != null) return null;
+    const prevReal = lastReal;
+    return parseFloat((prevReal + growthRate * (i - (trendAcum.length-1))).toFixed(1));
+  });
+
+  new Chart(document.getElementById('c-acum'), {
+    type:'line',
+    data:{ labels:months, datasets:[
+      { label:'Budget', data:budAcum, borderColor:'rgba(61,184,114,.4)', backgroundColor:'rgba(61,184,114,.06)', fill:true, borderWidth:1.5, borderDash:[5,4], pointRadius:0, tension:.4 },
+      { label:'Realizado', data:realAcum, borderColor:green1, backgroundColor:'rgba(34,149,88,.12)', fill:true, borderWidth:2.5, pointRadius:5, pointBackgroundColor:green1, tension:.4 },
+      { label:'Tendência', data:trend, borderColor:'rgba(224,184,74,.6)', backgroundColor:'transparent', borderWidth:1.5, borderDash:[3,3], pointRadius:0, tension:.4 }
+    ]},
+    options:{ ...baseOpts('R$'),
+      scales:{ ...baseOpts('R$').scales, y:{ ...baseOpts('R$').scales.y, ticks:{ color:text3, font:{size:10}, callback:v=>'R$'+v+'M' } } }
+    }
+  });
+}
+
+/* ─── CENÁRIOS TAB ─── */
+function initCenarios() {
+  const pcts  = [60,70,75,80,85,90,95,100,105,110,115,120];
+  const ebt   = pcts.map(p => parseFloat(Math.max(0, 87.3*(p/100) * 0.95 - 4*(1-p/100)).toFixed(1)));
+  new Chart(document.getElementById('c-sens'), {
+    type:'line',
+    data:{ labels:pcts.map(v=>v+'%'), datasets:[
+      { label:'EBITDA R$M', data:ebt, borderColor:green1, backgroundColor:'rgba(34,149,88,.1)', fill:true, borderWidth:2.5, pointRadius:4, pointBackgroundColor:pcts.map(p=>p===100?gold:green1), tension:.4 },
+      { label:'Budget R$87,3M', data:Array(pcts.length).fill(87.3), borderColor:'rgba(226,75,74,.7)', backgroundColor:'transparent', borderWidth:1.5, borderDash:[5,4], pointRadius:0 }
+    ]},
+    options:{ ...baseOpts('R$'),
+      scales:{ ...baseOpts('R$').scales, y:{ ...baseOpts('R$').scales.y, min:30, ticks:{ color:text3, font:{size:10}, callback:v=>'R$'+v+'M' } },
+        x:{ ticks:{ color:text3, font:{size:10} }, grid:{ color:border }, border:{ color:'transparent' }, title:{ display:true, text:'Atingimento de receita vs budget', color:text3, font:{size:10} } } }
+    }
+  });
+}
+</script>
+</body>
+</html>
