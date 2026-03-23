@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FP&A — Grupo Oficial Farma 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --red:#D42027;--red-d:#8B1015;--red-bg:rgba(212,32,39,.08);--red-bdr:rgba(212,32,39,.2);
+  --blue:#1E5FA8;--blue-bg:rgba(30,95,168,.08);--blue-bdr:rgba(30,95,168,.2);
+  --green:#1A8C52;--green-bg:rgba(26,140,82,.08);
+  --warn:#C47820;--warn-bg:rgba(196,120,32,.08);--warn-bdr:rgba(196,120,32,.2);
+  --gold:#C89B30;
+  --g900:#171719;--g700:#3A3A3E;--g500:#6E6E78;--g400:#9494A0;
+  --g200:#D8D8E0;--g100:#EBEBF0;--g50:#F5F5F8;--white:#fff;
+  --fd:'Playfair Display',serif;--fb:'Inter',sans-serif;--fm:'JetBrains Mono',monospace;
+  --rlg:16px;--rmd:10px;--sh:0 0 0 1px rgba(0,0,0,.06),0 2px 8px rgba(0,0,0,.06);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:var(--fb);background:var(--g50);color:var(--g900);-webkit-font-smoothing:antialiased;}
+.topband{height:4px;background:var(--red);}
+.hdr{background:var(--white);border-bottom:1px solid var(--g100);position:sticky;top:0;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.05);}
+.hdri{max-width:1180px;margin:0 auto;padding:0 28px;display:flex;align-items:center;justify-content:space-between;height:64px;gap:16px;}
+.logo{display:flex;align-items:center;gap:13px;flex-shrink:0;}
+.logo svg{width:40px;height:40px;flex-shrink:0;}
+.lname{font-size:16px;font-weight:600;letter-spacing:-.01em;line-height:1.1;}
+.lname span{color:var(--red);}
+.ltag{font-size:9px;color:var(--g400);letter-spacing:.06em;text-transform:uppercase;}
+.htitle{font-family:var(--fd);font-size:13px;font-weight:600;color:var(--g700);text-align:center;}
+.hsub{font-size:10px;color:var(--g400);font-family:var(--fm);text-align:center;}
+.hbadge{background:var(--red-bg);border:1px solid var(--red-bdr);color:var(--red-d);font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;border-radius:20px;flex-shrink:0;}
+.wrap{max-width:1180px;margin:0 auto;padding:28px 28px 64px;}
+/* groups */
+.gbnd{display:flex;align-items:center;gap:12px;margin:8px 0 16px;}
+.gpill{padding:4px 14px;border-radius:20px;font-size:11px;font-weight:600;border:1px solid;}
+.gpill-r{background:var(--red-bg);border-color:var(--red-bdr);color:var(--red-d);}
+.gpill-b{background:var(--blue-bg);border-color:var(--blue-bdr);color:var(--blue);}
+.glabel{font-size:10px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:var(--g400);display:flex;align-items:center;gap:8px;}
+.glabel::before{content:'';width:16px;height:2px;border-radius:2px;flex-shrink:0;}
+.gl-r::before{background:var(--red);}
+.gl-b::before{background:var(--blue);}
+/* KPIs */
+.kg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:10px;}
+.kc{background:var(--white);border-radius:var(--rlg);box-shadow:var(--sh);padding:18px 18px 14px;border:1px solid var(--g100);position:relative;overflow:hidden;transition:transform .18s,box-shadow .18s;}
+.kc:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.1);}
+.kc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--rlg) var(--rlg) 0 0;}
+.kr::before{background:var(--red);}
+.kg2::before{background:var(--green);}
+.kw::before{background:var(--warn);}
+.kgo::before{background:var(--gold);}
+.kb::before{background:var(--blue);}
+.klbl{font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--g400);margin-bottom:6px;}
+.kval{font-family:var(--fd);font-size:26px;font-weight:700;line-height:1;color:var(--g900);margin-bottom:5px;}
+.kdelta{font-size:11px;font-family:var(--fm);color:var(--g400);}
+.up{color:var(--green);}.dn{color:var(--red);}.wn{color:var(--warn);}
+/* tabs */
+.tbar{display:flex;border-bottom:1.5px solid var(--g100);margin-bottom:20px;}
+.tbtn{padding:9px 18px;border:none;background:transparent;font-family:var(--fb);font-size:12px;font-weight:500;color:var(--g400);cursor:pointer;position:relative;white-space:nowrap;transition:color .14s;}
+.tbtn::after{content:'';position:absolute;bottom:-1.5px;left:0;right:0;height:2px;border-radius:2px;opacity:0;transition:opacity .14s;}
+.tbtn.active{font-weight:600;}
+.tbtn.tr.active{color:var(--red);}
+.tbtn.tr.active::after{background:var(--red);opacity:1;}
+.tbtn.tb.active{color:var(--blue);}
+.tbtn.tb.active::after{background:var(--blue);opacity:1;}
+.tbtn.tg.active{color:var(--g700);}
+.tbtn.tg.active::after{background:var(--g700);opacity:1;}
+.tbtn:hover:not(.active){color:var(--g700);}
+.tpane{display:none;}
+.tpane.active{display:block;}
+/* cards */
+.card{background:var(--white);border:1px solid var(--g100);border-radius:var(--rlg);box-shadow:var(--sh);padding:20px 22px 18px;}
+.ctitle{font-family:var(--fd);font-size:14px;font-weight:600;color:var(--g900);margin-bottom:2px;}
+.csub{font-size:11px;color:var(--g400);margin-bottom:14px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:14px;}
+/* legend */
+.lr{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:10px;}
+.li{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--g500);}
+.ls{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
+.ll{width:14px;height:2px;border-radius:1px;flex-shrink:0;}
+/* table */
+.dt{width:100%;border-collapse:collapse;font-size:12px;}
+.dt thead th{text-align:left;font-size:10px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--g400);padding:7px 10px;border-bottom:1px solid var(--g100);}
+.dt thead th:not(:first-child){text-align:right;}
+.dt tbody td{padding:9px 10px;border-bottom:1px solid var(--g50);color:var(--g700);vertical-align:middle;}
+.dt tbody tr:last-child td{border-bottom:none;}
+.dt tbody tr:hover td{background:var(--g50);}
+.dt td:not(:first-child){text-align:right;font-family:var(--fm);font-size:11px;}
+/* badges */
+.bdg{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;}
+.br{background:var(--red-bg);color:var(--red-d);}
+.bg{background:var(--green-bg);color:var(--green);}
+.bb{background:var(--blue-bg);color:var(--blue);}
+.bw{background:var(--warn-bg);color:var(--warn);}
+.bgo{background:rgba(200,155,48,.1);color:var(--gold);}
+/* alerts */
+.alert{display:flex;gap:10px;padding:12px 14px;border-radius:var(--rmd);margin-bottom:8px;border-left:3px solid;}
+.ab{flex:1;}
+.at{font-weight:600;font-size:12px;margin-bottom:2px;}
+.ax{font-size:11px;line-height:1.5;}
+.ar{background:var(--red-bg);border-color:var(--red);color:var(--red-d);}
+.aw{background:var(--warn-bg);border-color:var(--warn);color:#7A4A10;}
+.ag{background:var(--green-bg);border-color:var(--green);color:#0F5C34;}
+.ablue{background:var(--blue-bg);border-color:var(--blue);color:#163F72;}
+/* action items */
+.action{background:var(--white);border:1px solid var(--g100);border-radius:var(--rmd);padding:11px 14px;display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.atag{font-size:9px;font-weight:700;letter-spacing:.08em;padding:2px 7px;border-radius:3px;margin-top:1px;white-space:nowrap;flex-shrink:0;}
+.atxt{font-size:12px;color:var(--g700);line-height:1.4;}
+/* narrative */
+.narr{border-radius:var(--rlg);padding:22px 24px;margin-bottom:16px;border:1px solid;}
+.narro{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;margin-bottom:8px;}
+.narrh{font-family:var(--fd);font-size:20px;font-weight:700;margin-bottom:10px;line-height:1.2;color:var(--g900);}
+.narrb{font-size:12px;line-height:1.7;color:var(--g500);}
+.narrb strong{color:var(--g900);font-weight:600;}
+.nstats{display:flex;gap:20px;margin-top:14px;flex-wrap:wrap;}
+.ns{text-align:center;}
+.nsv{font-family:var(--fd);font-size:22px;font-weight:700;}
+.nsl{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--g400);margin-top:1px;}
+/* misc */
+.divider{height:1px;background:var(--g100);margin:16px 0;}
+.sdiv{height:1px;background:var(--g100);margin:28px 0;}
+.infobox{border-radius:var(--rmd);padding:12px 14px;font-size:11px;line-height:1.6;}
+/* footer */
+.footer{margin-top:40px;padding:16px 0;border-top:1px solid var(--g100);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;}
+.ftxt{font-size:10px;color:var(--g400);font-family:var(--fm);}
+.fconf{font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--red-bdr);}
+/* anim */
+@keyframes fu{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:translateY(0);}}
+.kc{animation:fu .3s ease both;}
+.kc:nth-child(1){animation-delay:.04s;}.kc:nth-child(2){animation-delay:.08s;}
+.kc:nth-child(3){animation-delay:.12s;}.kc:nth-child(4){animation-delay:.16s;}
+@media(max-width:720px){.kg{grid-template-columns:repeat(2,1fr);}.g2,.g3{grid-template-columns:1fr;}.htitle,.hsub{display:none;}}
+</style>
+</head>
+<body>
+<div class="topband"></div>
+<header class="hdr">
+  <div class="hdri">
+    <div class="logo">
+      <svg viewBox="0 0 40 40" fill="none">
+        <circle cx="20" cy="20" r="19" fill="#D42027"/>
+        <rect x="12" y="9" width="5" height="22" rx="1.5" fill="white"/>
+        <rect x="12" y="9" width="13.5" height="5" rx="1.5" fill="white"/>
+        <rect x="12" y="17.5" width="9.5" height="4" rx="1.5" fill="white"/>
+        <path d="M23 13 Q31.5 15.5 30.5 21 Q29.5 28 22 29.5" stroke="rgba(255,255,255,.22)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="lname">oficial<span>farma</span></div>
+        <div class="ltag">Sua melhor versão</div>
+      </div>
+    </div>
+    <div>
+      <div class="htitle">FP&amp;A Executive Dashboard 2026</div>
+      <div class="hsub">Núcleo Farma · Novos Negócios · Jan–Fev Realizados</div>
+    </div>
+    <span class="hbadge">Confidencial</span>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- ════ NÚCLEO FARMACÊUTICO ════ -->
+<div class="gbnd">
+  <span class="gpill gpill-r">Núcleo Farmacêutico</span>
+  <span class="glabel gl-r">FARMA · DERMA · NUTRI</span>
+</div>
+
+<div class="narr" style="background:linear-gradient(135deg,#fef8f8,#fff5f5);border-color:var(--red-bdr);">
+  <div class="narro" style="color:var(--red);">Diagnóstico Jan–Fev 2026</div>
+  <div class="narrh">O motor está ligado. A rotação está abaixo do esperado.</div>
+  <div class="narrb">
+    A FARMA sustenta o grupo inteiro: gerou <strong>R$30M dos R$30,5M de receita consolidada</strong> em jan–fev, com margem bruta de 74% — 5pp acima do orçado. O produto performa. O gap é de volume: –7% em janeiro, –13% em fevereiro, com tendência de ampliação.<br><br>
+    A DERMA operou com EBITDA negativo nos dois meses (–R$155K jan, –R$57K fev). A trajetória melhora mas a unidade ainda não é autossustentável. A NUTRI realizou <strong>R$798 em janeiro e R$25.800 em fevereiro</strong> contra budget de R$253K e R$445K — essencialmente pré-operacional, queimando ~R$200K/mês em estrutura.
+  </div>
+  <div class="nstats">
+    <div class="ns"><div class="nsv" style="color:var(--red);">R$ 30M</div><div class="nsl">Receita Real YTD</div></div>
+    <div class="ns"><div class="nsv" style="color:var(--g700);">R$ 33,7M</div><div class="nsl">Budget YTD</div></div>
+    <div class="ns"><div class="nsv" style="color:var(--warn);">–11%</div><div class="nsl">Gap receita</div></div>
+    <div class="ns"><div class="nsv" style="color:var(--green);">74%</div><div class="nsl">Margem bruta real</div></div>
+    <div class="ns"><div class="nsv" style="color:var(--red);">≈ zero</div><div class="nsl">NUTRI real</div></div>
+  </div>
+</div>
+
+<div class="kg">
+  <div class="kc kr"><div class="klbl">FARMA — Receita Real YTD</div><div class="kval">R$ 30M</div><div class="kdelta dn">▼ Budget R$33,4M · gap –10,2%</div></div>
+  <div class="kc kg2"><div class="klbl">FARMA — Margem Bruta Real</div><div class="kval">74%</div><div class="kdelta up">▲ Budget 69% · +5pp acima</div></div>
+  <div class="kc kw"><div class="klbl">DERMA — EBITDA Fev</div><div class="kval">–R$ 57K</div><div class="kdelta wn">◈ Melhora vs jan (–R$155K)</div></div>
+  <div class="kc kr"><div class="klbl">NUTRI — Receita Real Jan+Fev</div><div class="kval">R$ 26K</div><div class="kdelta dn">▼ Budget R$697K · gap –96%</div></div>
+</div>
+
+<div class="tbar" id="tbar-n">
+  <button class="tbtn tr active" onclick="switchTab('n','farma',this)">FARMA</button>
+  <button class="tbtn tr" onclick="switchTab('n','derma',this)">DERMA</button>
+  <button class="tbtn tr" onclick="switchTab('n','nutri',this)">NUTRI</button>
+  <button class="tbtn tg" onclick="switchTab('n','ncomb',this)">Núcleo Consolidado</button>
+</div>
+
+<!-- FARMA -->
+<div id="pane-farma" class="tpane active">
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">FARMA — Receita Mensal</div>
+      <div class="csub">Budget vs Realizado · R$ milhões · 2026</div>
+      <div class="lr">
+        <span class="li"><span class="ls" style="background:rgba(212,32,39,.55)"></span>Realizado</span>
+        <span class="li"><span class="ls" style="background:rgba(212,32,39,.18)"></span>Budget</span>
+      </div>
+      <div style="position:relative;height:210px;"><canvas id="c1"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">FARMA — EBITDA R$ + Margem%</div>
+      <div class="csub">Budget vs Realizado · 2026</div>
+      <div class="lr">
+        <span class="li"><span class="ls" style="background:rgba(212,32,39,.55)"></span>Real R$M</span>
+        <span class="li"><span class="ls" style="background:rgba(212,32,39,.18)"></span>Budget R$M</span>
+        <span class="li"><span class="ll" style="background:#C89B30"></span>EBITDA% real</span>
+      </div>
+      <div style="position:relative;height:210px;"><canvas id="c2"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle">FARMA — Concentração de Canal e Diagnóstico</div>
+    <div class="csub">Estrutura de receita e situação atual</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:14px;">
+      <div style="background:var(--red-bg);border:1px solid var(--red-bdr);border-radius:var(--rmd);padding:14px;text-align:center;">
+        <div style="font-family:var(--fd);font-size:26px;font-weight:700;color:var(--red);">93%</div>
+        <div style="font-size:10px;color:var(--g500);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;">E-commerce</div>
+        <div style="font-size:10px;color:var(--red);margin-top:4px;font-weight:500;">Canal único — risco</div>
+      </div>
+      <div style="background:var(--g50);border:1px solid var(--g100);border-radius:var(--rmd);padding:14px;text-align:center;">
+        <div style="font-family:var(--fd);font-size:26px;font-weight:700;color:var(--g700);">7%</div>
+        <div style="font-size:10px;color:var(--g500);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;">Lojas Físicas</div>
+        <div style="font-size:10px;color:var(--g500);margin-top:4px;">4 pontos</div>
+      </div>
+      <div style="background:var(--green-bg);border:1px solid rgba(26,140,82,.2);border-radius:var(--rmd);padding:14px;text-align:center;">
+        <div style="font-family:var(--fd);font-size:26px;font-weight:700;color:var(--green);">28,5%</div>
+        <div style="font-size:10px;color:var(--g500);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;">EBITDA% Budget</div>
+        <div style="font-size:10px;color:var(--green);margin-top:4px;">Margem saudável</div>
+      </div>
+      <div style="background:var(--warn-bg);border:1px solid var(--warn-bdr);border-radius:var(--rmd);padding:14px;text-align:center;">
+        <div style="font-family:var(--fd);font-size:26px;font-weight:700;color:var(--warn);">–11%</div>
+        <div style="font-size:10px;color:var(--g500);text-transform:uppercase;letter-spacing:.06em;margin-top:3px;">Gap Receita YTD</div>
+        <div style="font-size:10px;color:var(--warn);margin-top:4px;">Ampliando jan→fev</div>
+      </div>
+    </div>
+    <div class="infobox" style="background:var(--red-bg);border:1px solid var(--red-bdr);color:var(--g700);">
+      <strong>Diagnóstico FARMA:</strong> A unidade opera 5pp acima do orçado em margem bruta — o produto está bem precificado e o custo controlado. O desvio é exclusivamente de volume de e-commerce. Investigação prioritária: tráfego pago (CAC, ROAS), taxa de conversão e ticket médio. O gap está ampliando mês a mês — diagnóstico deve ser concluído em até 30 dias.
+    </div>
+  </div>
+</div>
+
+<!-- DERMA -->
+<div id="pane-derma" class="tpane">
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">DERMA — Receita Budget vs Real (R$ mil)</div>
+      <div class="csub">JJ &amp; Layneskin · ramp-up 2026</div>
+      <div class="lr">
+        <span class="li"><span class="ls" style="background:rgba(212,32,39,.55)"></span>Realizado</span>
+        <span class="li"><span class="ls" style="background:rgba(212,32,39,.18)"></span>Budget</span>
+        <span class="li"><span class="ll" style="background:#C89B30"></span>EBITDA%</span>
+      </div>
+      <div style="position:relative;height:220px;"><canvas id="c3"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">DERMA — Situação e Trajetória</div>
+      <div class="csub">Análise de ramp-up e break-even</div>
+      <div style="margin-top:8px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+          <span style="font-size:11px;color:var(--g500);min-width:90px;">Receita Jan vs Bgt</span>
+          <div style="flex:1;height:5px;background:var(--g100);border-radius:3px;overflow:hidden;"><div style="width:98%;height:100%;background:var(--warn);border-radius:3px;"></div></div>
+          <span style="font-family:var(--fm);font-size:11px;min-width:44px;text-align:right;color:var(--warn);">–2%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+          <span style="font-size:11px;color:var(--g500);min-width:90px;">Receita Fev vs Bgt</span>
+          <div style="flex:1;height:5px;background:var(--g100);border-radius:3px;overflow:hidden;"><div style="width:80%;height:100%;background:var(--red);border-radius:3px;"></div></div>
+          <span style="font-family:var(--fm);font-size:11px;min-width:44px;text-align:right;color:var(--red);">–19%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+          <span style="font-size:11px;color:var(--g500);min-width:90px;">EBITDA Jan</span>
+          <div style="flex:1;height:5px;background:var(--g100);border-radius:3px;overflow:hidden;"><div style="width:100%;height:100%;background:var(--red);border-radius:3px;"></div></div>
+          <span style="font-family:var(--fm);font-size:11px;min-width:44px;text-align:right;color:var(--red);">neg.</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+          <span style="font-size:11px;color:var(--g500);min-width:90px;">EBITDA Fev</span>
+          <div style="flex:1;height:5px;background:var(--g100);border-radius:3px;overflow:hidden;"><div style="width:100%;height:100%;background:rgba(212,32,39,.5);border-radius:3px;"></div></div>
+          <span style="font-family:var(--fm);font-size:11px;min-width:44px;text-align:right;color:var(--red);">neg.</span>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:11px;line-height:1.6;color:var(--g500);">
+        Com custos fixos estimados em ~R$200K/mês e receita atual de ~R$240K, o break-even de contribuição exige receita acima de R$314K — que o budget prevê a partir de março. O EBITDA deve tornar-se positivo a partir de abril (budget R$32K). <br><br><strong style="color:var(--g700);">Televendas e outros meios de venda</strong> precisam de aceleração — são os canais com maior gap relativo em fevereiro.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NUTRI -->
+<div id="pane-nutri" class="tpane">
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">NUTRI — Budget vs Real (R$ mil)</div>
+      <div class="csub">Advanced · situação pré-operacional jan–fev</div>
+      <div class="lr">
+        <span class="li"><span class="ls" style="background:rgba(200,155,48,.6)"></span>Budget</span>
+        <span class="li"><span class="ls" style="background:rgba(212,32,39,.7)"></span>Realizado</span>
+        <span class="li"><span class="ll" style="background:#1A8C52"></span>EBITDA% budget</span>
+      </div>
+      <div style="position:relative;height:220px;"><canvas id="c4"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">NUTRI — Por que é a Maior Oportunidade</div>
+      <div class="csub">Potencial de retorno quando operacional</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:rgba(200,155,48,.08);border:1px solid rgba(200,155,48,.2);border-radius:var(--rmd);padding:12px;text-align:center;">
+          <div style="font-family:var(--fd);font-size:24px;font-weight:700;color:var(--gold);">56,6%</div>
+          <div style="font-size:10px;color:var(--g500);margin-top:3px;">EBITDA% quando opera</div>
+        </div>
+        <div style="background:var(--green-bg);border:1px solid rgba(26,140,82,.2);border-radius:var(--rmd);padding:12px;text-align:center;">
+          <div style="font-family:var(--fd);font-size:24px;font-weight:700;color:var(--green);">R$566K</div>
+          <div style="font-size:10px;color:var(--g500);margin-top:3px;">EBITDA por R$1M receita</div>
+        </div>
+        <div style="background:var(--red-bg);border:1px solid var(--red-bdr);border-radius:var(--rmd);padding:12px;text-align:center;">
+          <div style="font-family:var(--fd);font-size:24px;font-weight:700;color:var(--red);">–R$200K</div>
+          <div style="font-size:10px;color:var(--g500);margin-top:3px;">Queima mensal atual</div>
+        </div>
+        <div style="background:var(--warn-bg);border:1px solid var(--warn-bdr);border-radius:var(--rmd);padding:12px;text-align:center;">
+          <div style="font-family:var(--fd);font-size:24px;font-weight:700;color:var(--warn);">R$7,3M</div>
+          <div style="font-size:10px;color:var(--g500);margin-top:3px;">Budget anual receita</div>
+        </div>
+      </div>
+      <div class="infobox" style="background:rgba(200,155,48,.06);border:1px solid rgba(200,155,48,.22);">
+        <strong>Alerta de lançamento:</strong> A NUTRI realizou R$798 em janeiro e R$25.800 em fevereiro. O budget pressupõe operação plena a partir de março (~R$554K/mês). Cada mês adicional de atraso representa ~R$300K de queima sem retorno. A data de início operacional comercial precisa ser confirmada com urgência pela diretoria.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NÚCLEO CONSOLIDADO -->
+<div id="pane-ncomb" class="tpane">
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">Receita — Núcleo Consolidado</div>
+      <div class="csub">FARMA + DERMA + NUTRI · Budget vs Real · R$ milhões</div>
+      <div class="lr">
+        <span class="li"><span class="ls" style="background:rgba(212,32,39,.55)"></span>Realizado</span>
+        <span class="li"><span class="ls" style="background:rgba(212,32,39,.18)"></span>Budget</span>
+      </div>
+      <div style="position:relative;height:210px;"><canvas id="c5"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Mix de Receita por BU — Budget 2026</div>
+      <div class="csub">Participação percentual no núcleo (R$232M)</div>
+      <div style="position:relative;height:210px;"><canvas id="c6"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle">Tabela Comparativa — Núcleo Farmacêutico</div>
+    <div class="csub">Budget 2026 vs realizado YTD</div>
+    <table class="dt">
+      <thead><tr><th>Unidade</th><th>Rec. Budget</th><th>Rec. Real YTD</th><th>Gap %</th><th>EBITDA% Budget</th><th>EBITDA Real YTD</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>FARMA</strong><br><span style="font-size:10px;color:var(--g400)">Motor do grupo · e-commerce 93%</span></td>
+          <td>R$ 220M</td><td>R$ 30,0M</td>
+          <td><span style="color:var(--warn);font-weight:600;">–10,2%</span></td>
+          <td><span style="color:var(--green);font-weight:600;">28,5%</span></td>
+          <td style="color:var(--warn);font-weight:600;">R$ 8,55M</td>
+          <td><span class="bdg bw">Vol. abaixo</span></td>
+        </tr>
+        <tr>
+          <td><strong>DERMA</strong><br><span style="font-size:10px;color:var(--g400)">JJ &amp; Layneskin · ramp-up</span></td>
+          <td>R$ 5,0M</td><td>R$ 483K</td>
+          <td><span style="color:var(--warn);font-weight:600;">–11,8%</span></td>
+          <td><span style="color:var(--warn);font-weight:600;">13,6%</span></td>
+          <td style="color:var(--red);font-weight:600;">–R$ 212K</td>
+          <td><span class="bdg br">EBITDA neg.</span></td>
+        </tr>
+        <tr>
+          <td><strong>NUTRI</strong><br><span style="font-size:10px;color:var(--g400)">Advanced · pré-operacional</span></td>
+          <td>R$ 7,3M</td><td>R$ 26,6K</td>
+          <td><span style="color:var(--red);font-weight:600;">–96,2%</span></td>
+          <td><span style="color:var(--gold);font-weight:600;">56,6%</span></td>
+          <td style="color:var(--red);font-weight:600;">–R$ 423K</td>
+          <td><span class="bdg br">Pré-lançamento</span></td>
+        </tr>
+        <tr style="background:var(--g50);">
+          <td><strong>Total Núcleo</strong></td>
+          <td><strong>R$ 232M</strong></td><td><strong>R$ 30,5M</strong></td>
+          <td><span style="color:var(--warn);font-weight:600;">–10,4%</span></td>
+          <td><span style="color:var(--green);font-weight:600;">27,4%</span></td>
+          <td style="color:var(--warn);font-weight:600;">R$ 7,9M</td>
+          <td><span class="bdg bw">Monitorar</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════ NOVOS NEGÓCIOS ════ -->
+<div class="sdiv"></div>
+<div class="gbnd">
+  <span class="gpill gpill-b">Novos Negócios</span>
+  <span class="glabel gl-b">FOOD · CT</span>
+</div>
+
+<div class="narr" style="background:linear-gradient(135deg,#f6f9fe,#eef4ff);border-color:var(--blue-bdr);">
+  <div class="narro" style="color:var(--blue);">Diagnóstico Jan–Fev 2026</div>
+  <div class="narrh">Lançamentos pendentes. Potencial real. Risco de atraso crescente.</div>
+  <div class="narrb">
+    As duas verticais de novos negócios orçadas para 2026 não saíram do papel em janeiro e fevereiro. A <strong>Oficial Foods</strong> realizou R$8 em fevereiro contra budget de R$335K. O <strong>CT Oficial</strong> realizou R$2.469 em janeiro contra budget de zero — e R$8 em fevereiro contra R$64.500.<br><br>
+    O modelo de negócio de ambas é eficiente quando opera: FOOD projeta <strong>73% de EBITDA%</strong> nos meses maduros. Mas <strong>cada mês de atraso é receita e EBITDA permanentemente perdidos</strong> — a curva de ramp-up não se desloca, ela se comprime. FOOD + CT representam R$32,5M de receita e R$7,6M de EBITDA no budget 2026.
+  </div>
+  <div class="nstats">
+    <div class="ns"><div class="nsv" style="color:var(--blue);">R$ 32,5M</div><div class="nsl">Budget Combinado</div></div>
+    <div class="ns"><div class="nsv" style="color:var(--red);">R$ ~0</div><div class="nsl">Real Jan+Fev</div></div>
+    <div class="ns"><div class="nsv" style="color:var(--red);">–100%</div><div class="nsl">Gap vs Budget</div></div>
+    <div class="ns"><div class="nsv" style="color:var(--blue);">73%</div><div class="nsl">EBITDA% FOOD maduro</div></div>
+    <div class="ns"><div class="nsv" style="color:var(--warn);">Mar 2026</div><div class="nsl">Gate de lançamento</div></div>
+  </div>
+</div>
+
+<div class="kg">
+  <div class="kc kb"><div class="klbl">FOOD — Budget Anual</div><div class="kval">R$ 25,1M</div><div class="kdelta" style="color:var(--blue);">EBITDA% 73% nos meses maduros</div></div>
+  <div class="kc kr"><div class="klbl">FOOD — Real Acumulado</div><div class="kval">R$ 8</div><div class="kdelta dn">▼ Budget YTD R$661K · gap –100%</div></div>
+  <div class="kc kb"><div class="klbl">CT — Budget Anual</div><div class="kval">R$ 7,4M</div><div class="kdelta" style="color:var(--blue);">Cursos online · ramp-up mar→dez</div></div>
+  <div class="kc kr"><div class="klbl">CT — Real Acumulado</div><div class="kval">R$ 2,5K</div><div class="kdelta dn">▼ Budget YTD R$64,5K · gap –96%</div></div>
+</div>
+
+<div class="tbar" id="tbar-v">
+  <button class="tbtn tb active" onclick="switchTab('v','food',this)">FOOD</button>
+  <button class="tbtn tb" onclick="switchTab('v','ct',this)">CT Oficial</button>
+  <button class="tbtn tg" onclick="switchTab('v','vcomb',this)">Novos Negócios Consolidado</button>
+</div>
+
+<!-- FOOD -->
+<div id="pane-food" class="tpane active">
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">FOOD — Curva de Ramp-up Budget 2026</div>
+      <div class="csub">Oficial Foods · R$ mil · crescimento projetado</div>
+      <div class="lr">
+        <span class="li"><span class="ls" style="background:rgba(30,95,168,.55)"></span>Budget receita</span>
+        <span class="li"><span class="ll" style="background:#C89B30"></span>EBITDA% projetado</span>
+      </div>
+      <div style="position:relative;height:220px;"><canvas id="c7"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">FOOD — Modelo de Negócio</div>
+      <div class="csub">Mix de canais e ponto de inflexão crítico</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:var(--blue-bg);border:1px solid var(--blue-bdr);border-radius:var(--rmd);padding:12px;text-align:center;">
+          <div style="font-family:var(--fd);font-size:22px;font-weight:700;color:var(--blue);">55%</div>
+          <div style="font-size:10px;color:var(--g500);margin-top:3px;">E-commerce</div>
+        </div>
+        <div style="background:var(--blue-bg);border:1px solid var(--blue-bdr);border-radius:var(--rmd);padding:12px;text-align:center;">
+          <div style="font-family:var(--fd);font-size:22px;font-weight:700;color:var(--blue);">40%</div>
+          <div style="font-size:10px;color:var(--g500);margin-top:3px;">Outros meios</div>
+        </div>
+        <div style="background:var(--blue-bg);border:1px solid var(--blue-bdr);border-radius:var(--rmd);padding:12px;text-align:center;">
+          <div style="font-family:var(--fd);font-size:22px;font-weight:700;color:var(--blue);">4,3%</div>
+          <div style="font-size:10px;color:var(--g500);margin-top:3px;">Vending Machines</div>
+        </div>
+        <div style="background:var(--green-bg);border:1px solid rgba(26,140,82,.2);border-radius:var(--rmd);padding:12px;text-align:center;">
+          <div style="font-family:var(--fd);font-size:22px;font-weight:700;color:var(--green);">73%</div>
+          <div style="font-size:10px;color:var(--g500);margin-top:3px;">EBITDA% H2</div>
+        </div>
+      </div>
+      <div class="infobox" style="background:var(--blue-bg);border:1px solid var(--blue-bdr);color:var(--g700);">
+        <strong style="color:var(--blue);">Ponto de inflexão: julho 2026.</strong> O budget prevê salto de R$1,2M em junho para R$2,8M em julho (+134%). Esse gatilho precisa ter responsável, plano e data confirmados. Sem execução desse evento, o EBITDA H2 da FOOD cai aproximadamente 50%.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CT -->
+<div id="pane-ct" class="tpane">
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">CT Oficial — Curva de Ramp-up Budget 2026</div>
+      <div class="csub">Cursos online · R$ mil · crescimento linear projetado</div>
+      <div class="lr">
+        <span class="li"><span class="ls" style="background:rgba(30,95,168,.45)"></span>Budget receita</span>
+        <span class="li"><span class="ll" style="background:#C89B30"></span>EBITDA% projetado</span>
+      </div>
+      <div style="position:relative;height:220px;"><canvas id="c8"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">CT Oficial — Análise do Modelo</div>
+      <div class="csub">Estrutura de crescimento e questões abertas</div>
+      <div style="margin-top:8px;">
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+          <span style="font-size:11px;color:var(--g500);min-width:100px;">Real vs Budget</span>
+          <div style="flex:1;height:5px;background:var(--g100);border-radius:3px;overflow:hidden;"><div style="width:4%;height:100%;background:var(--red);border-radius:3px;"></div></div>
+          <span style="font-family:var(--fm);font-size:11px;min-width:44px;text-align:right;color:var(--red);">4%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+          <span style="font-size:11px;color:var(--g500);min-width:100px;">EBITDA% budget</span>
+          <div style="flex:1;height:5px;background:var(--g100);border-radius:3px;overflow:hidden;"><div style="width:13%;height:100%;background:var(--warn);border-radius:3px;"></div></div>
+          <span style="font-family:var(--fm);font-size:11px;min-width:44px;text-align:right;color:var(--warn);">13,4%</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+          <span style="font-size:11px;color:var(--g500);min-width:100px;">Meses de ramp-up</span>
+          <div style="flex:1;height:5px;background:var(--g100);border-radius:3px;overflow:hidden;"><div style="width:92%;height:100%;background:var(--blue);opacity:.6;border-radius:3px;"></div></div>
+          <span style="font-family:var(--fm);font-size:11px;min-width:44px;text-align:right;color:var(--blue);">11 meses</span>
+        </div>
+      </div>
+      <div class="divider"></div>
+      <div style="font-size:11px;line-height:1.6;color:var(--g500);">
+        O CT projeta crescimento linear de R$0 em jan para R$1,29M em dez. O EBITDA% de 13,4% — baixo para cursos digitais — sugere estrutura de custo relevante (plataforma, docentes, certificação).<br><br>
+        <strong style="color:var(--g700);">Questões estratégicas abertas:</strong> Qual o CAC por aluno? Qual a taxa de retenção e recorrência? O modelo é assinatura ou avulso? Essas métricas determinam se 13,4% é um piso ou um teto de EBITDA para esse vertical.
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- NOVOS CONSOLIDADO -->
+<div id="pane-vcomb" class="tpane">
+  <div class="g2">
+    <div class="card">
+      <div class="ctitle">Receita Combinada Budget — FOOD + CT</div>
+      <div class="csub">R$ milhões · trajetória 2026</div>
+      <div class="lr">
+        <span class="li"><span class="ls" style="background:rgba(30,95,168,.6)"></span>FOOD</span>
+        <span class="li"><span class="ls" style="background:rgba(30,95,168,.25)"></span>CT</span>
+      </div>
+      <div style="position:relative;height:220px;"><canvas id="c9"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ctitle">Impacto do Atraso de Lançamento</div>
+      <div class="csub">Receita acumulada perdida a cada mês de delay</div>
+      <div class="lr">
+        <span class="li"><span class="ls" style="background:rgba(26,140,82,.6)"></span>Sem atraso</span>
+        <span class="li"><span class="ls" style="background:rgba(196,120,32,.6)"></span>+1 mês</span>
+        <span class="li"><span class="ls" style="background:rgba(212,32,39,.6)"></span>+2 meses</span>
+      </div>
+      <div style="position:relative;height:220px;"><canvas id="c10"></canvas></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctitle">Tabela Comparativa — Novos Negócios</div>
+    <div class="csub">Budget 2026 vs realizado · gap e risco de entrega</div>
+    <table class="dt">
+      <thead><tr><th>Unidade</th><th>Rec. Budget</th><th>Real YTD</th><th>Gap YTD</th><th>EBITDA% Budget</th><th>Lançamento</th><th>Risco</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>FOOD — Oficial Foods</strong><br><span style="font-size:10px;color:var(--g400)">E-com + vending + outros meios</span></td>
+          <td>R$ 25,1M</td><td>R$ 8</td>
+          <td><span style="color:var(--red);font-weight:600;">–100%</span></td>
+          <td><span style="color:var(--green);font-weight:600;">73%</span></td>
+          <td>Previsto mar 2026</td>
+          <td><span class="bdg br">Alto</span></td>
+        </tr>
+        <tr>
+          <td><strong>CT Oficial</strong><br><span style="font-size:10px;color:var(--g400)">Cursos online · modelo digital</span></td>
+          <td>R$ 7,4M</td><td>R$ 2,5K</td>
+          <td><span style="color:var(--red);font-weight:600;">–96%</span></td>
+          <td><span style="color:var(--warn);font-weight:600;">13,4%</span></td>
+          <td>Em andamento</td>
+          <td><span class="bdg bw">Médio</span></td>
+        </tr>
+        <tr style="background:var(--g50);">
+          <td><strong>Total Novos Negócios</strong></td>
+          <td><strong>R$ 32,5M</strong></td><td><strong>≈ R$ 0</strong></td>
+          <td><span style="color:var(--red);font-weight:600;">–100%</span></td>
+          <td><span style="color:var(--green);font-weight:600;">~57%</span></td>
+          <td>—</td>
+          <td><span class="bdg br">Crítico</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════ ALERTAS ════ -->
+<div class="sdiv"></div>
+<div class="glabel" style="color:var(--g400);margin-bottom:14px;">
+  <span style="width:16px;height:2px;background:var(--g300);border-radius:2px;"></span>
+  Alertas Consolidados e Ações Prioritárias
+</div>
+<div class="g2">
+  <div>
+    <div class="alert ar"><div class="ab"><div class="at">NUTRI + FOOD + CT — três lançamentos atrasados</div><div class="ax">Juntos orçam R$40M de receita. Juntos realizaram ~R$30K. O budget pressupõe operação plena a partir de março. A diretoria precisa confirmar com data firme o status de cada lançamento.</div></div></div>
+    <div class="alert ar"><div class="ab"><div class="at">Gap de receita FARMA ampliando mês a mês</div><div class="ax">Jan –7% → Fev –13%. O motor do grupo está gerando menos do que deveria. Diagnóstico urgente do funil e-commerce: CAC, ROAS, taxa de conversão, ticket médio.</div></div></div>
+    <div class="alert aw"><div class="ab"><div class="at">FOOD — ponto de inflexão de julho não documentado</div><div class="ax">Budget prevê triplicar receita de junho para julho. Esse evento precisa ter responsável, plano e gatilho definidos. Sem isso é um número sem base de execução.</div></div></div>
+    <div class="alert aw"><div class="ab"><div class="at">DERMA ainda queima caixa em jan–fev</div><div class="ax">–R$155K jan, –R$57K fev. A trajetória melhora mas a autossustentabilidade só deve ocorrer a partir de abril. Monitorar mensalmente.</div></div></div>
+  </div>
+  <div>
+    <div style="font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--g400);margin-bottom:12px;display:flex;align-items:center;gap:8px;"><span style="width:14px;height:2px;background:var(--g300);border-radius:2px;display:inline-block;"></span>Ações Prioritárias</div>
+    <div class="action"><span class="atag" style="background:var(--red-bg);color:var(--red-d);">URGENTE</span><span class="atxt">Diagnóstico de funil FARMA e-commerce: tráfego → conversão → ticket médio — causa identificada em até 30 dias</span></div>
+    <div class="action"><span class="atag" style="background:var(--red-bg);color:var(--red-d);">URGENTE</span><span class="atxt">Gate review dos três lançamentos: NUTRI (data de início), FOOD (plano de ramp-up), CT (cronograma de alunos)</span></div>
+    <div class="action"><span class="atag" style="background:var(--red-bg);color:var(--red-d);">URGENTE</span><span class="atxt">Revisão do CAPEX R$68M por projeto — deferir projetos sem ROI ≤18 meses libera R$15–20M de FCL</span></div>
+    <div class="action"><span class="atag" style="background:var(--warn-bg);color:var(--warn);">MÉDIO PRAZO</span><span class="atxt">Plano de escala NUTRI: 56,6% EBITDA%, maior retorno marginal do portfólio — criar roadmap de distribuição dedicado</span></div>
+    <div class="action"><span class="atag" style="background:var(--warn-bg);color:var(--warn);">MÉDIO PRAZO</span><span class="atxt">Documentar o gatilho de julho da FOOD: evento, parceria ou canal responsável pelo salto de +134% de receita</span></div>
+    <div class="action"><span class="atag" style="background:var(--green-bg);color:var(--green);">ESTRUTURAL</span><span class="atxt">Decisão de Conselho sobre ativos não-operacionais (–R$31M em 2025): segregar, desinvestir ou aceitar o impacto</span></div>
+  </div>
+</div>
+
+<div class="footer">
+  <span class="ftxt">Elaboração: Jefferson Scarabotto — Controller &nbsp;|&nbsp; Revisão: Ingrid Silveira — CFO &nbsp;|&nbsp; Aprovação: 19 Mar 2026</span>
+  <span class="fconf">Grupo Oficial Farma — Uso Restrito</span>
+</div>
+</div><!-- /wrap -->
+
+<script>
+/* ── CHART COLORS (explicit strings, no manipulation) ── */
+var C = {
+  RED:    '#D42027',
+  RED55:  'rgba(212,32,39,0.55)',
+  RED18:  'rgba(212,32,39,0.18)',
+  RED08:  'rgba(212,32,39,0.08)',
+  BLUE:   '#1E5FA8',
+  BLUE55: 'rgba(30,95,168,0.55)',
+  BLUE25: 'rgba(30,95,168,0.25)',
+  GREEN:  '#1A8C52',
+  GREEN55:'rgba(26,140,82,0.55)',
+  GOLD:   '#C89B30',
+  GOLD55: 'rgba(200,155,48,0.55)',
+  WARN:   '#C47820',
+  G400:   '#9494A0',
+  G200:   '#D8D8E0',
+  GRID:   'rgba(0,0,0,0.04)'
+};
+
+var MO = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+
+/* ── SHARED CHART OPTIONS BUILDER ── */
+function opts(yTickCb, hasY2) {
+  var scales = {
+    x: {
+      ticks: { color: C.G400, font: { size: 10, family: 'Inter, sans-serif' } },
+      grid: { color: C.GRID },
+      border: { color: 'transparent' }
+    },
+    y: {
+      ticks: { color: C.G400, font: { size: 10 }, callback: yTickCb || function(v){ return v; } },
+      grid: { color: C.GRID },
+      border: { color: 'transparent' }
+    }
+  };
+  if (hasY2) {
+    scales.y2 = {
+      position: 'right',
+      ticks: { color: C.GOLD, font: { size: 10 }, callback: function(v){ return v + '%'; } },
+      grid: { display: false },
+      border: { color: 'transparent' },
+      min: -30,
+      max: 90
+    };
+  }
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        backgroundColor: '#1C1C1E',
+        borderColor: 'rgba(212,32,39,0.25)',
+        borderWidth: 0.5,
+        titleColor: '#B8B8C2',
+        bodyColor: '#F5F5F8',
+        padding: 10,
+        cornerRadius: 8
+      }
+    },
+    scales: scales
+  };
+}
+
+function rM(v){ return 'R$' + v + 'M'; }
+function rK(v){ return 'R$' + v + 'K'; }
+function pct(v){ return v + '%'; }
+
+/* ── DATA ── */
+var fRevB = [16.84,16.59,18.76,17.55,17.87,17.20,17.26,18.47,19.24,20.18,22.45,17.59];
+var fRevR = [15.66,14.37,null,null,null,null,null,null,null,null,null,null];
+var fEbtB = [4.59,3.96,5.13,3.99,4.66,4.30,4.43,5.15,5.74,6.28,7.44,4.29];
+var fEbtR = [4.59,3.96,null,null,null,null,null,null,null,null,null,null];
+var fPctR = [30.6,28.6,null,null,null,null,null,null,null,null,null,null];
+
+var dRevB  = [0.251,0.295,0.314,0.399,0.409,0.434,0.443,0.447,0.512,0.450,0.583,0.467];
+var dRevR  = [0.246,0.238,null,null,null,null,null,null,null,null,null,null];
+var dEbtPB = [null,null,-2.9,9.3,10.5,5.9,13.7,14.2,19.3,22.1,33.4,28.0];
+var dEbtPR = [-80.1,-27.5,null,null,null,null,null,null,null,null,null,null];
+
+var nRevB  = [0.253,0.445,0.554,0.535,0.623,0.557,0.564,0.772,0.905,0.913,1.045,0.841];
+var nRevR  = [0.0008,0.026,null,null,null,null,null,null,null,null,null,null];
+var nPctB  = [null,null,79.7,77.6,78.7,75.1,73.2,79.3,79.3,78.8,79.0,77.8];
+
+var foodB  = [0.326,0.335,0.651,0.912,1.049,1.207,2.825,3.108,3.418,3.760,4.024,4.144];
+var foodPct= [null,null,53.7,62.9,63.2,66.3,76.7,75.5,76.1,76.6,76.8,76.8];
+
+var ctB    = [0,0.065,0.186,0.308,0.429,0.551,0.673,0.796,0.918,1.041,1.164,1.288];
+var ctPct  = [null,null,null,5,8,10,12,13,13.5,14,14,13.4];
+
+/* Nuclro combined */
+var nucRevB = MO.map(function(_,i){ return parseFloat((fRevB[i]+dRevB[i]+nRevB[i]).toFixed(2)); });
+var nucRevR = MO.map(function(_,i){
+  if(fRevR[i]!==null && dRevR[i]!==null && nRevR[i]!==null) return parseFloat((fRevR[i]+dRevR[i]+nRevR[i]).toFixed(3));
+  return null;
+});
+
+/* Novos combined */
+var novBase = MO.map(function(_,i){ return parseFloat((foodB[i]+ctB[i]).toFixed(3)); });
+var novAccum = [];
+var sum=0;
+novBase.forEach(function(v){ sum+=v; novAccum.push(parseFloat(sum.toFixed(3))); });
+
+var novDelay1Acc = [];
+sum=0;
+MO.forEach(function(_,i){ var v=i===0?0:novBase[i-1]; sum+=v; novDelay1Acc.push(parseFloat(sum.toFixed(3))); });
+
+var novDelay2Acc = [];
+sum=0;
+MO.forEach(function(_,i){ var v=i<2?0:novBase[i-2]; sum+=v; novDelay2Acc.push(parseFloat(sum.toFixed(3))); });
+
+/* ── BUILD ALL CHARTS AFTER DOM READY ── */
+window.addEventListener('load', function() {
+
+  /* C1 — FARMA Receita */
+  new Chart(document.getElementById('c1'), {
+    type: 'bar',
+    data: {
+      labels: MO,
+      datasets: [
+        { label:'Budget', data:fRevB, backgroundColor:C.RED18, borderColor:'rgba(212,32,39,0.35)', borderWidth:0.5, borderRadius:3 },
+        { label:'Realizado', data:fRevR, backgroundColor:C.RED55, borderColor:C.RED, borderWidth:0.5, borderRadius:3 }
+      ]
+    },
+    options: opts(rM, false)
+  });
+
+  /* C2 — FARMA EBITDA */
+  new Chart(document.getElementById('c2'), {
+    type: 'bar',
+    data: {
+      labels: MO,
+      datasets: [
+        { label:'Budget', data:fEbtB, backgroundColor:C.RED18, borderColor:'rgba(212,32,39,0.35)', borderWidth:0.5, borderRadius:3 },
+        { label:'Realizado', data:fEbtR, backgroundColor:C.RED55, borderColor:C.RED, borderWidth:0.5, borderRadius:3 },
+        { type:'line', label:'EBITDA%', data:fPctR, borderColor:C.GOLD, backgroundColor:'transparent', borderWidth:2.5, pointRadius:6, pointBackgroundColor:C.GOLD, tension:0.3, yAxisID:'y2' }
+      ]
+    },
+    options: opts(rM, true)
+  });
+
+  /* C3 — DERMA */
+  new Chart(document.getElementById('c3'), {
+    type: 'bar',
+    data: {
+      labels: MO,
+      datasets: [
+        { label:'Budget', data:dRevB, backgroundColor:C.RED18, borderColor:'rgba(212,32,39,0.35)', borderWidth:0.5, borderRadius:3 },
+        { label:'Realizado', data:dRevR, backgroundColor:C.RED55, borderColor:C.RED, borderWidth:0.5, borderRadius:3 },
+        { type:'line', label:'EBITDA% real', data:dEbtPR, borderColor:C.RED, backgroundColor:'transparent', borderWidth:1.5, borderDash:[3,3], pointRadius:4, pointBackgroundColor:C.RED, tension:0.3, yAxisID:'y2' },
+        { type:'line', label:'EBITDA% budget', data:dEbtPB, borderColor:C.GOLD, backgroundColor:'transparent', borderWidth:1.5, pointRadius:3, pointBackgroundColor:C.GOLD, tension:0.3, yAxisID:'y2' }
+      ]
+    },
+    options: (function(){
+      var o = opts(function(v){ return 'R$'+v+'M'; }, true);
+      o.scales.y2.min = -90;
+      o.scales.y2.max = 40;
+      return o;
+    })()
+  });
+
+  /* C4 — NUTRI */
+  new Chart(document.getElementById('c4'), {
+    type: 'bar',
+    data: {
+      labels: MO,
+      datasets: [
+        { label:'Budget', data:nRevB, backgroundColor:'rgba(200,155,48,0.35)', borderColor:C.GOLD, borderWidth:0.5, borderRadius:3 },
+        { label:'Realizado', data:nRevR, backgroundColor:'rgba(212,32,39,0.75)', borderColor:C.RED, borderWidth:0.5, borderRadius:3 },
+        { type:'line', label:'EBITDA%', data:nPctB, borderColor:C.GREEN, backgroundColor:'transparent', borderWidth:2, pointRadius:3, tension:0.3, yAxisID:'y2' }
+      ]
+    },
+    options: (function(){
+      var o = opts(function(v){ return 'R$'+v+'M'; }, true);
+      o.scales.y2.min = 0;
+      o.scales.y2.max = 90;
+      return o;
+    })()
+  });
+
+  /* C5 — Nucleo combined rev */
+  new Chart(document.getElementById('c5'), {
+    type: 'bar',
+    data: {
+      labels: MO,
+      datasets: [
+        { label:'Budget', data:nucRevB, backgroundColor:C.RED18, borderColor:'rgba(212,32,39,0.35)', borderWidth:0.5, borderRadius:3 },
+        { label:'Realizado', data:nucRevR, backgroundColor:C.RED55, borderColor:C.RED, borderWidth:0.5, borderRadius:3 }
+      ]
+    },
+    options: opts(rM, false)
+  });
+
+  /* C6 — Nucleo donut */
+  new Chart(document.getElementById('c6'), {
+    type: 'doughnut',
+    data: {
+      labels: ['FARMA','DERMA','NUTRI'],
+      datasets: [{ data:[220,5.0,7.3], backgroundColor:['rgba(212,32,39,0.8)','rgba(212,32,39,0.45)','rgba(200,155,48,0.75)'], borderWidth:0, hoverOffset:6 }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      cutout: '65%',
+      plugins: {
+        legend: { position:'right', labels:{ color:'#6E6E78', font:{size:11,family:'Inter,sans-serif'}, padding:12, boxWidth:12 } },
+        tooltip: { callbacks: { label: function(c){ return ' R$'+c.raw+'M ('+Math.round(c.raw/232.3*100)+'%)'; } } }
+      }
+    }
+  });
+
+  /* C7 — FOOD ramp */
+  new Chart(document.getElementById('c7'), {
+    type: 'bar',
+    data: {
+      labels: MO,
+      datasets: [
+        { label:'Budget receita', data:foodB, backgroundColor:C.BLUE55, borderColor:C.BLUE, borderWidth:0.5, borderRadius:3 },
+        { type:'line', label:'EBITDA%', data:foodPct, borderColor:C.GOLD, backgroundColor:'transparent', borderWidth:2.5, pointRadius:4, pointBackgroundColor:C.GOLD, tension:0.3, yAxisID:'y2' }
+      ]
+    },
+    options: (function(){
+      var o = opts(rM, true);
+      o.scales.y2.min = 0;
+      o.scales.y2.max = 90;
+      return o;
+    })()
+  });
+
+  /* C8 — CT ramp */
+  new Chart(document.getElementById('c8'), {
+    type: 'bar',
+    data: {
+      labels: MO,
+      datasets: [
+        { label:'Budget receita', data:ctB, backgroundColor:'rgba(30,95,168,0.45)', borderColor:C.BLUE, borderWidth:0.5, borderRadius:3 },
+        { type:'line', label:'EBITDA%', data:ctPct, borderColor:C.GOLD, backgroundColor:'transparent', borderWidth:2.5, pointRadius:4, pointBackgroundColor:C.GOLD, tension:0.3, yAxisID:'y2' }
+      ]
+    },
+    options: (function(){
+      var o = opts(rM, true);
+      o.scales.y2.min = 0;
+      o.scales.y2.max = 90;
+      return o;
+    })()
+  });
+
+  /* C9 — Novos stacked */
+  new Chart(document.getElementById('c9'), {
+    type: 'bar',
+    data: {
+      labels: MO,
+      datasets: [
+        { label:'FOOD', data:foodB, backgroundColor:C.BLUE55, borderColor:C.BLUE, borderWidth:0.5, borderRadius:3, stack:'s' },
+        { label:'CT',   data:ctB,   backgroundColor:C.BLUE25, borderColor:C.BLUE, borderWidth:0.5, borderRadius:3, stack:'s' }
+      ]
+    },
+    options: (function(){
+      var o = opts(rM, false);
+      o.scales.x.stacked = true;
+      o.scales.y.stacked = true;
+      return o;
+    })()
+  });
+
+  /* C10 — Delay simulation */
+  new Chart(document.getElementById('c10'), {
+    type: 'line',
+    data: {
+      labels: MO,
+      datasets: [
+        { label:'Sem atraso', data:novAccum, borderColor:C.GREEN, backgroundColor:'rgba(26,140,82,0.08)', fill:true, borderWidth:2.5, pointRadius:3, tension:0.4 },
+        { label:'+1 mês delay', data:novDelay1Acc, borderColor:C.WARN, backgroundColor:'transparent', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:0.4 },
+        { label:'+2 meses delay', data:novDelay2Acc, borderColor:C.RED, backgroundColor:'transparent', borderWidth:1.5, borderDash:[4,3], pointRadius:0, tension:0.4 }
+      ]
+    },
+    options: (function(){
+      var o = opts(rM, false);
+      o.plugins.legend = { display:true, labels:{ color:'#6E6E78', font:{size:10,family:'Inter,sans-serif'}, padding:10, boxWidth:10 } };
+      return o;
+    })()
+  });
+
+}); // end window.load
+
+/* ── TAB SWITCHING ── */
+var _loaded = {};
+
+function switchTab(group, name, btn) {
+  var prefixes = {
+    'n': ['farma','derma','nutri','ncomb'],
+    'v': ['food','ct','vcomb']
+  };
+  var panes = prefixes[group];
+
+  // hide all panes in this group
+  panes.forEach(function(p) {
+    var el = document.getElementById('pane-' + p);
+    if (el) el.classList.remove('active');
+  });
+
+  // deactivate all tabs in this bar
+  var bar = document.getElementById('tbar-' + group);
+  if (bar) {
+    bar.querySelectorAll('.tbtn').forEach(function(b) { b.classList.remove('active'); });
+  }
+
+  // show target pane and activate tab
+  var target = document.getElementById('pane-' + name);
+  if (target) target.classList.add('active');
+  if (btn) btn.classList.add('active');
+}
+</script>
+</body>
+</html>
